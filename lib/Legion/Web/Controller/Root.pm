@@ -2,9 +2,13 @@ package Legion::Web::Controller::Root;
 
 use strict;
 use warnings;
-use parent 'Catalyst::Controller';
+
 use Digest::SHA1 qw( sha1_hex );
 use IO::All;
+use DBI;
+use TheSchwartz::Simple;
+
+use parent 'Catalyst::Controller';
 
 #
 # Sets the actions in this controller to be registered with no prefix
@@ -49,6 +53,23 @@ sub index :Path :Args(0) {
     }
     $c->stash->{files} = $files;
     $c->stash->{template} = 'submit.tt2';
+}
+
+sub render : Local Args(0) {
+    my ($self, $c) = @_;
+
+    my $dbh = DBI->connect($c->config->{theschwartz_dsn})
+        or die "Couldn't connect to the TheSchwartz DB";
+    my $client = TheSchwartz::Simple->new([$dbh]);
+    my $job_id = $client->insert('Legion::Worker::FrameMaker',
+        {
+            filename => $c->req->params->{filename},
+            frame_first => 1,
+            frame_last => 250
+        }
+    );
+
+    $c->res->body('render ' . $c->req->params->{filename});
 }
 
 sub files :Local Args(0) {

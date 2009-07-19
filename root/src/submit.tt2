@@ -1,0 +1,64 @@
+[% BLOCK container %]
+<div class="ui-widget ui-widget-content ui-corner-all" style="padding: 4px">
+    <h2 style="padding: 0px 8px 0px 8px">[% heading %]</h2>
+    <div style="padding: 0px 8px 8px 8px;">
+        [% content %]
+    </div>
+</div>
+[% END %]
+
+<h1>Legion</h1>
+<div id="tabs">
+    <ul>
+        <li><a href="#tab-files">Files</a></li>
+        <li><a href="#tab-jobs">Jobs</a></li>
+    </ul>
+    <div id="tab-files">
+        <p>
+        <form enctype="multipart/form-data" method="POST" action="[% c.uri_for('files') %]">
+            Select a .blend or archive file (zip, tar.gz, tar.bz) to upload<br/>
+            <input name="file" type="file" />
+            <input type="submit" value="Upload" />
+        </form>
+        </p>
+        <hr />
+        <table>
+        <tr>
+        </tr>
+        [% FOREACH file=files %]
+        <tr><td>[% file.filename %]</td>
+            <td>[% file.sha1 or '-' %]</td>
+            <td><a href="[% c.uri_for('render', filename=file.filename) %]">render</a> | <a href="/delete">delete</a></td></tr>
+                <!--
+                <ul class="ui-widget ui-helper-clearfix">
+                    <li style="width: 50%; display: inline"></li>
+                    <li style="display: inline">[% file.sha1 or '&nbsp;' %]</li>
+                    <li style="display: inline=
+                        <a href="#">Render</a>
+                        <a href="#">Delete</a>
+                    </li>
+                </ul> -->
+        [% END %]
+        </table>
+    </div>
+    <div id="tab-jobs">
+        <h3>In Progress</h3>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <h3>Completed</h3>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+        <div>---------------- ---- ------------------------</div>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        $("#tabs").tabs();
+    });
+</script>

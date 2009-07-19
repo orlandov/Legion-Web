@@ -19,14 +19,6 @@ use Catalyst qw/-Debug
                 Static::Simple/;
 our $VERSION = '0.01';
 
-# Configure the application.
-#
-# Note that settings in legion_web.conf (or other external
-# configuration file that you set up manually) take precedence
-# over this when using ConfigLoader. Thus configuration
-# details given here can function as a default configuration,
-# with an external configuration file acting as an override for
-# local deployment.
 __PACKAGE__->config->{static}->{ignore_extensions} = [];
 
 # Start the application

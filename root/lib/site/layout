@@ -1,7 +1,6 @@
-<div id="header">[% PROCESS site/header %]</div>
+<!-- header -->
 
-<div id="content">
+<div class="container" id="content">
 [% content %]
 </div>
-
-<div id="footer">[% PROCESS site/footer %]</div>
+<!-- footer -->

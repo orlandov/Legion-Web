@@ -27,8 +27,7 @@ our $VERSION = '0.01';
 # details given here can function as a default configuration,
 # with an external configuration file acting as an override for
 # local deployment.
-
-__PACKAGE__->config( name => 'Legion::Web' );
+__PACKAGE__->config->{static}->{ignore_extensions} = [];
 
 # Start the application
 __PACKAGE__->setup();

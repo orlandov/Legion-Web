@@ -9,4 +9,5 @@ my $dbname = $ENV{DBNAME}
 system("dropdb '$dbname'");
 system("createdb '$dbname'");
 system("psql '$dbname' -f db/legion.sql");
+system("script/legion_web_create.pl model DB DBIC::Schema Legion::Schema create=static dbi:Pg:dbname=$dbname");
 system("cd ../Legion-JobQueue/; psql '$dbname' -f db/theschwartz.sql");

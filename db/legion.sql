@@ -1,22 +1,15 @@
 BEGIN;
 
-CREATE TABLE "Source" (
-    file_id  SERIAL,
-    sha1     VARCHAR(255) NOT NULL,
+CREATE TABLE source (
+    file_id  SERIAL PRIMARY KEY,
     filename VARCHAR(255) NOT NULL,
-
-    UNIQUE(filename)
+    filesize INT NOT NULL,
+    sha1     VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE "Project" (
-    renderjob_id SERIAL,
-    user_id      INT NOT NULL,
-    file_id      INT NOT NULL
-);
-
-CREATE TABLE "User" (
-    user_id SERIAL,
-    email   VARCHAR(255) NOT NULL
+CREATE TABLE project (
+    project_id SERIAL PRIMARY KEY,
+    source_id  INT NOT NULL
 );
 
 COMMIT;

@@ -19,10 +19,10 @@
         <table>
         <tr>
         </tr>
-        [% FOREACH file=files %]
-        <tr><td>[% file.filename %]</td>
-            <td>[% file.sha1 or '-' %]</td>
-            <td><a href="[% c.uri_for('render', filename=file.filename) %]">render</a> | <a href="/delete">delete</a></td></tr>
+        [% FOREACH source=sources %]
+        <tr><td>[% source.filename %]</td>
+            <td>[% source.sha1 or '-' %]</td>
+            <td><a href="[% c.uri_for('render', source_id=source.source_id) %]">Render</a> | <a href="[% c.uri_for('delete_source', source_id=source.source_id) %]">Delete</a></td></tr>
                 <!--
                 <ul class="ui-widget ui-helper-clearfix">
                     <li style="width: 50%; display: inline"></li>

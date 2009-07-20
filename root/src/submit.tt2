@@ -1,13 +1,7 @@
-[% BLOCK container %]
-<div class="ui-widget ui-widget-content ui-corner-all" style="padding: 4px">
-    <h2 style="padding: 0px 8px 0px 8px">[% heading %]</h2>
-    <div style="padding: 0px 8px 8px 8px;">
-        [% content %]
-    </div>
-</div>
-[% END %]
-
 <h1>Legion</h1>
+[% IF message %]
+<div class="ui-state-highlight ui-corner-all">[% message %]</div>
+[% END %]
 <div id="tabs">
     <ul>
         <li><a href="#tab-files">Files</a></li>

@@ -14,12 +14,20 @@ use Catalyst::Runtime 5.80;
 #                 directory
 
 use parent qw/Catalyst/;
-use Catalyst qw/-Debug
-                ConfigLoader
-                Static::Simple/;
+use Catalyst qw(
+    -Debug
+    Session
+    Session::Store::FastMmap
+    Session::State::Cookie
+    ConfigLoader
+    Static::Simple
+);
+
 our $VERSION = '0.01';
 
 __PACKAGE__->config->{static}->{ignore_extensions} = [];
+__PACKAGE__->config->{session} = { flash_to_stash => 1 };
+
 
 # Start the application
 __PACKAGE__->setup();

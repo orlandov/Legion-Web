@@ -21,7 +21,7 @@
          + config/url;
 
    # set defaults for variables, etc.
-   DEFAULT 
-     message = 'There is no message';
+   #DEFAULT 
+   #  message = 'There is no message';
 
 -%]

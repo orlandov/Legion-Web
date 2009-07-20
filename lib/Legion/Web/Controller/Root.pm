@@ -60,16 +60,19 @@ sub render : Local Args(0) {
 
     my $dbh = DBI->connect($c->config->{theschwartz_dsn})
         or die "Couldn't connect to the TheSchwartz DB";
+
+    my $filename = $c->req->params->{filename};
     my $client = TheSchwartz::Simple->new([$dbh]);
     my $job_id = $client->insert('Legion::Worker::FrameMaker',
         {
-            filename => $c->req->params->{filename},
+            filename => $filename,
             frame_first => 1,
             frame_last => 250
         }
     );
 
-    $c->res->body('render ' . $c->req->params->{filename});
+    $c->flash->{message} = "Render job created for $filename";
+    $c->res->redirect($c->uri_for('/'));
 }
 
 sub files :Local Args(0) {

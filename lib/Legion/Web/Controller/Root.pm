@@ -48,17 +48,41 @@ sub render : Local Args(0) {
     my $dbh = DBI->connect($c->config->{theschwartz_dsn})
         or die "Couldn't connect to the TheSchwartz DB";
 
-    my $filename = $c->req->params->{filename};
-    my $client = TheSchwartz::Simple->new([$dbh]);
-    my $job_id = $client->insert('Legion::Worker::FrameMaker',
+    my $sources_rs = $c->model('DB::Source');
+    my $source_id = $c->req->params->{source_id};
+    my $source = $sources_rs->find($source_id);
+
+    my $schwartz = TheSchwartz::Simple->new([$dbh]);
+    $schwartz->insert(
+        'Legion::Worker::FrameMaker',
         {
-            filename => $filename,
+            source_id   => $source_id,
             frame_first => 1,
-            frame_last => 250
+            frame_last  => 250
         }
     );
 
-    $c->flash->{message} = "Render job created for $filename";
+    $c->flash->{message} = "Render job created for " . $source->filename;
+    $c->res->redirect($c->uri_for('/'));
+}
+
+sub delete_source : Local Args(0) {
+    my ($self, $c) = @_;
+
+    my $sources_rs  = $c->model('DB::Source');
+    my $source_id   = $c->req->params->{source_id};
+    my $source      = $sources_rs->find($source_id);
+    my $sha1        = $source->sha1;
+    my $filename    = $source->filename;
+    my $storage_dir = $c->config->{storage};
+    $source->delete;
+
+    my $storage_filename = "$storage_dir/$sha1";
+    unlink $storage_filename
+        or die "Couldn't delete source $filename";
+
+    $c->flash->{message}
+        = "Source $filename successfully deleted";
     $c->res->redirect($c->uri_for('/'));
 }
 

@@ -3,12 +3,16 @@
 use strict;
 use warnings;
 
-my $dbname = $ENV{DBNAME}
-    or die "DBNAME must be specified";
+my $dbname = "legion-test";
 
 system("dropdb '$dbname'");
+system("dropdb '$dbname-schwartz'");
+
 system("createdb '$dbname'");
+system("createdb '$dbname-schwartz'");
+
 system("psql '$dbname' -f db/legion.sql");
 system("script/legion_web_create.pl model DB DBIC::Schema Legion::Schema create=static dbi:Pg:dbname=$dbname");
-system("cd ../Legion-JobQueue/; psql '$dbname' -f db/theschwartz.sql");
+
+system("cd ../Legion-JobQueue/; psql '$dbname-schwartz' -f db/theschwartz.sql");
 system("rm storage_dir/*");

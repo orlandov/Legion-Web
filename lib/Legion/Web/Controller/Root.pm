@@ -32,38 +32,73 @@ Legion::Web::Controller::Root - Root Controller for Legion::Web
 
 =cut
 
-sub index :Path Args(0) {
-    my ( $self, $c ) = @_;
-    
-    my $schema = $c->model('DB::Source');
-    my @sources = $schema->all;
+sub index : Path Args(0) {
+    my ($self, $c) = @_;
 
-    $c->stash->{sources} = \@sources;
+    my @sources = $c->model('DB::Source')->all;
+    my @jobs    = $c->model('DB::Renderjob')->all;
+
+    $c->stash->{sources}  = \@sources;
+    $c->stash->{jobs}     = \@jobs;
     $c->stash->{template} = 'submit.tt2';
 }
 
 sub render : Local Args(0) {
     my ($self, $c) = @_;
 
-    my $dbh = DBI->connect($c->config->{theschwartz_dsn})
-        or die "Couldn't connect to the TheSchwartz DB";
-
+    my $source_id  = $c->req->params->{source_id};
     my $sources_rs = $c->model('DB::Source');
-    my $source_id = $c->req->params->{source_id};
+    my $jobs_rs    = $c->model('DB::Renderjob');
+
     my $source = $sources_rs->find($source_id);
 
-    my $schwartz = TheSchwartz::Simple->new([$dbh]);
-    $schwartz->insert(
-        'Legion::Worker::FrameMaker',
-        {
-            source_id   => $source_id,
-            frame_first => 1,
-            frame_last  => 250
-        }
-    );
+    $jobs_rs->create({ source_id => $source_id });
 
     $c->flash->{message} = "Render job created for " . $source->filename;
     $c->res->redirect($c->uri_for('/'));
+}
+
+sub start_renderjob : Local Args(0) {
+    my ($self, $c) = @_;
+    my $dbh = DBI->connect($c->config->{theschwartz_dsn})
+        or die "Couldn't connect to the TheSchwartz DB";
+
+    my $renderjob_id = $c->req->params->{renderjob_id}
+        or die "No job specified";
+
+    my $sources_rs = $c->model('DB::Source');
+    my $source_id  = $c->req->params->{source_id};
+    my $source     = $sources_rs->find($source_id);
+
+    # TODO validation
+    my $renderjobs_rs = $c->model('DB::Renderjob');
+    my $renderjob     = $renderjobs_rs->find($renderjob_id);
+
+    my $schwartz = TheSchwartz::Simple->new([$dbh]);
+    $schwartz->insert(
+        'Legion::Worker::Renderer',
+        {
+            renderjob_id => $renderjob_id,
+            frame_first  => 1,
+            frame_last   => 250
+        }
+    );
+}
+
+sub root_redir {
+    my ($self, $c) = @_;
+    $c->res->redirect('/');
+}
+
+sub delete_job : Local Args(0) {
+    my ($self, $c) = @_;
+
+    my $renderjobs_rs = $c->model('DB::Renderjob');
+    my $renderjob_id  = $c->req->params->{renderjob_id};
+    my $job           = $renderjobs_rs->find($renderjob_id);
+    $job->delete;
+
+    $self->root_redir($c);
 }
 
 sub delete_source : Local Args(0) {
@@ -72,17 +107,18 @@ sub delete_source : Local Args(0) {
     my $sources_rs  = $c->model('DB::Source');
     my $source_id   = $c->req->params->{source_id};
     my $source      = $sources_rs->find($source_id);
+
     my $sha1        = $source->sha1;
     my $filename    = $source->filename;
     my $storage_dir = $c->config->{storage};
+
     $source->delete;
 
     my $storage_filename = "$storage_dir/$sha1";
     unlink $storage_filename
         or die "Couldn't delete source $filename";
 
-    $c->flash->{message}
-        = "Source $filename successfully deleted";
+    $c->flash->{message} = "Source $filename successfully deleted";
     $c->res->redirect($c->uri_for('/'));
 }
 

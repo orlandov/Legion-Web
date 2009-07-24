@@ -7,9 +7,9 @@ CREATE TABLE source (
     sha1      VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE job (
-    job_id    SERIAL PRIMARY KEY,
-    source_id INT NOT NULL
+CREATE TABLE renderjob (
+    renderjob_id SERIAL PRIMARY KEY,
+    source_id    INT NOT NULL REFERENCES source ON DELETE RESTRICT
 );
 
 COMMIT;

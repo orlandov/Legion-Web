@@ -1,58 +1,67 @@
+[%# vim: set ft=tt2html %]
+[% USE Dumper %]
+
 <h1>Legion</h1>
+
+<hr/>
+
 [% IF message %]
 <div class="ui-state-highlight ui-corner-all">[% message %]</div>
 [% END %]
-<div id="tabs">
-    <ul>
-        <li><a href="#tab-files">Files</a></li>
-        <li><a href="#tab-jobs">Jobs</a></li>
-    </ul>
-    <div id="tab-files">
-        <p>
-        <form enctype="multipart/form-data" method="POST" action="[% c.uri_for('files') %]">
-            Select a .blend or archive file (zip, tar.gz, tar.bz) to upload<br/>
-            <input name="file" type="file" />
-            <input type="submit" value="Upload" />
-        </form>
-        </p>
-        <hr />
-        <table>
-        <tr>
-        </tr>
-        [% FOREACH source=sources %]
-        <tr><td>[% source.filename %]</td>
-            <td>[% source.sha1 or '-' %]</td>
-            <td><a href="[% c.uri_for('render', source_id=source.source_id) %]">Render</a> | <a href="[% c.uri_for('delete_source', source_id=source.source_id) %]">Delete</a></td></tr>
-                <!--
-                <ul class="ui-widget ui-helper-clearfix">
-                    <li style="width: 50%; display: inline"></li>
-                    <li style="display: inline">[% file.sha1 or '&nbsp;' %]</li>
-                    <li style="display: inline=
-                        <a href="#">Render</a>
-                        <a href="#">Delete</a>
-                    </li>
-                </ul> -->
-        [% END %]
-        </table>
+
+<h2>Upload Source</h2>
+<div class="upload">
+<p>
+<form enctype="multipart/form-data" method="POST" action="[% c.uri_for('files') %]">
+    Select a .blend or archive file (zip, tar.gz, tar.bz) to upload<br/>
+    <input name="file" type="file" />
+    <input type="submit" value="Upload" />
+</form>
+</p>
+</div>
+
+<hr />
+
+<h2>Source Files</h2>
+<div id="sources">
+    <table>
+    [% FOREACH source=sources %]
+    <tr><td>[% source.filename %]</td>
+        <td>[% source.sha1 or '-' %]</td>
+        <td>
+           <a href="[% c.uri_for('render', source_id=source.source_id) %]">Render</a>
+         | <a href="[% c.uri_for('delete_source', source_id=source.source_id) %]">Delete</a>
+        </td>
+    </tr>
+            <!--
+            <ul class="ui-widget ui-helper-clearfix">
+                <li style="width: 50%; display: inline"></li>
+                <li style="display: inline">[% file.sha1 or '&nbsp;' %]</li>
+                <li style="display: inline=
+                    <a href="#">Render</a>
+                    <a href="#">Delete</a>
+                </li>
+            </ul> -->
+    [% END %]
+    </table>
+</div>
+
+<hr/>
+
+<h2>Render Jobs</h2>
+<div id="jobs">
+    [% FOR job=jobs %]
+    <div class="job">
+        job_id = [% job.renderjob_id %]
+        <!-- <code><pre>[% Dumper.dump_html(job) %]</pre></code> -->
+        source = [% job.source_id.filename %]
+        <a href="[% c.uri_for('delete_job', renderjob_id=job.renderjob_id) %]">Delete</a>
     </div>
-    <div id="tab-jobs">
-        <h3>In Progress</h3>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <h3>Completed</h3>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-        <div>---------------- ---- ------------------------</div>
-    </div>
+    [% END %]
 </div>
 
 <script>
     $(function() {
-        $("#tabs").tabs();
+//        $("#tabs").tabs();
     });
 </script>

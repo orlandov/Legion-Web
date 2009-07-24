@@ -34,10 +34,15 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key("source_id");
 __PACKAGE__->add_unique_constraint("source_pkey", ["source_id"]);
+__PACKAGE__->has_many(
+  "renderjobs",
+  "Legion::Schema::Result::Renderjob",
+  { "foreign.source_id" => "self.source_id" },
+);
 
 
-# Created by DBIx::Class::Schema::Loader v0.04006 @ 2009-07-19 22:36:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7ZiUig4+4jw14EalJDQNXA
+# Created by DBIx::Class::Schema::Loader v0.04006 @ 2009-07-23 22:25:04
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fKXNzprUOLbL4prNj92+Pw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

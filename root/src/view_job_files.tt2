@@ -1,0 +1,26 @@
+[% USE Dumper %]
+
+<pre>[%# Dumper.dump_html(frames) %]</pre>
+
+<table>
+    <thead>
+        <th>Frame number</th>
+        <th>Status</th>
+        <th>SHA1</th>
+        <th>Elapsed Time</th>
+        <th>jo
+    </thead>
+<tbody>
+[% FOR frame=frames %]
+    <tr> 
+        <td>[% frame.frame_number %]</td>
+        <td>[% frame.status %]</td>
+        <td>[% frame.sha1 OR '-' %]</td>
+        <td>[% frama.elapsed OR '-' %]
+        <td>[% frame.renderjob_id.renderjob_id %]</td>
+    </tr>
+[% END %]
+    <tr>
+        <td colspan="3">[% frames.size %] frame(s)</td>
+    </tr>
+</table>

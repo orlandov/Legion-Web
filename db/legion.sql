@@ -9,7 +9,17 @@ CREATE TABLE source (
 
 CREATE TABLE renderjob (
     renderjob_id SERIAL PRIMARY KEY,
-    source_id    INT NOT NULL REFERENCES source ON DELETE RESTRICT
+    source_id    INT NOT NULL REFERENCES source ON DELETE RESTRICT,
+    status       VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE frame (
+    frame_id       SERIAL PRIMARY KEY,
+    frame_number   INT NOT NULL,
+    renderjob_id   INT NOT NULL REFERENCES renderjob ON DELETE CASCADE,
+    sha1           VARCHAR(255),
+    render_elapsed FLOAT,
+    status         VARCHAR(255)
 );
 
 COMMIT;

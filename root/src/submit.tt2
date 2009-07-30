@@ -5,8 +5,14 @@
 
 <hr/>
 
-[% IF message %]
-<div class="ui-state-highlight ui-corner-all">[% message %]</div>
+[% IF error %]
+<div class="error">[% error %]</div>
+[% END %]
+[% IF notice %]
+<div class="notice">[% notice %]</div>
+[% END %]
+[% IF success %]
+<div class="success">[% success %]</div>
 [% END %]
 
 <h2>Upload Source</h2>
@@ -24,44 +30,55 @@
 
 <h2>Source Files</h2>
 <div id="sources">
-    <table>
-    [% FOREACH source=sources %]
-    <tr><td>[% source.filename %]</td>
-        <td>[% source.sha1 or '-' %]</td>
-        <td>
-           <a href="[% c.uri_for('render', source_id=source.source_id) %]">Render</a>
-         | <a href="[% c.uri_for('delete_source', source_id=source.source_id) %]">Delete</a>
-        </td>
-    </tr>
-            <!--
-            <ul class="ui-widget ui-helper-clearfix">
-                <li style="width: 50%; display: inline"></li>
-                <li style="display: inline">[% file.sha1 or '&nbsp;' %]</li>
-                <li style="display: inline=
-                    <a href="#">Render</a>
-                    <a href="#">Delete</a>
-                </li>
-            </ul> -->
+    [% IF sources.size %]
+        <table>
+        [% FOREACH source=sources %]
+        <tr><td>[% source.filename %]</td>
+            <td>[% source.sha1 or '-' %]</td>
+            <td>
+               <a href="[% c.uri_for('render', source_id=source.source_id) %]">Render</a>
+             | <a href="[% c.uri_for('delete_source', source_id=source.source_id) %]">Delete</a>
+            </td>
+        </tr>
+                <!--
+                <ul class="ui-widget ui-helper-clearfix">
+                    <li style="width: 50%; display: inline"></li>
+                    <li style="display: inline">[% file.sha1 or '&nbsp;' %]</li>
+                    <li style="display: inline=
+                        <a href="#">Render</a>
+                        <a href="#">Delete</a>
+                    </li>
+                </ul> -->
+        [% END %]
+        </table>
+    [% ELSE %]
+        <div class="notice">
+            You don't currently have any source files.
+        </div>
     [% END %]
-    </table>
 </div>
 
 <hr/>
 
 <h2>Render Jobs</h2>
 <div id="jobs">
-    [% FOR job=jobs %]
-    <div class="job">
-        job_id = [% job.renderjob_id %]
-        <!-- <code><pre>[% Dumper.dump_html(job) %]</pre></code> -->
-        source = [% job.source_id.filename %]
-        <a href="[% c.uri_for('delete_job', renderjob_id=job.renderjob_id) %]">Delete</a>
-    </div>
+    [% IF jobs.size %]
+        [% FOR job=jobs %]
+        <div class="job">
+            job_id = [% job.renderjob_id %]
+            status = [% job.status %]
+            source = [% job.source_id.filename %]
+            [% job.frames.size %] frames
+            <a href="[% c.uri_for('view_job_files', id=job.renderjob_id) %]">View files</a>
+            <a href="[% c.uri_for('start_renderjob', renderjob_id=job.renderjob_id) %]">Start</a> |
+            <a href="[% c.uri_for('delete_job', renderjob_id=job.renderjob_id) %]">Delete</a>
+        </div>
+        [% END %]
+    [% ELSE %]
+        <div class="notice">
+            You don't currently have any render jobs.
+        </div>
     [% END %]
 </div>
 
-<script>
-    $(function() {
-//        $("#tabs").tabs();
-    });
-</script>
+<hr />

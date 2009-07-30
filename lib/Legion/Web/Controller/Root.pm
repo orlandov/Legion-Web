@@ -52,9 +52,9 @@ sub render : Local Args(0) {
 
     my $source = $sources_rs->find($source_id);
 
-    $jobs_rs->create({ source_id => $source_id });
+    $jobs_rs->create({ source_id => $source_id, status => 'idle' });
 
-    $c->flash->{message} = "Render job created for " . $source->filename;
+    $c->flash->{success} = "Render job created for " . $source->filename;
     $c->res->redirect($c->uri_for('/'));
 }
 
@@ -66,23 +66,42 @@ sub start_renderjob : Local Args(0) {
     my $renderjob_id = $c->req->params->{renderjob_id}
         or die "No job specified";
 
-    my $sources_rs = $c->model('DB::Source');
-    my $source_id  = $c->req->params->{source_id};
-    my $source     = $sources_rs->find($source_id);
-
     # TODO validation
     my $renderjobs_rs = $c->model('DB::Renderjob');
     my $renderjob     = $renderjobs_rs->find($renderjob_id);
+    $renderjob->status('active');
+    $renderjob->update;
 
+    my $frame_rs = $c->model('DB::Frame');
+    $frame_rs->populate(
+        [
+            [ qw/ frame_number renderjob_id status / ],
+            map { [ $_,  $renderjob_id, 'incomplete' ] } (1 .. 250)
+        ]
+    );
     my $schwartz = TheSchwartz::Simple->new([$dbh]);
     $schwartz->insert(
         'Legion::Worker::Renderer',
         {
             renderjob_id => $renderjob_id,
-            frame_first  => 1,
-            frame_last   => 250
+            frame_number => 1,
         }
     );
+
+
+    $c->flash->{success} = 'Started job';
+    $c->res->redirect($c->uri_for('/'));
+}
+
+sub view_job_files : Local Args(0) {
+    my ($self, $c) = @_;
+
+    my $renderjob_id = $c->req->params->{id};
+    my $renderjobs_rs = $c->model('DB::Renderjob');
+    my $renderjob = $renderjobs_rs->find($renderjob_id);
+
+    $c->stash->{frames} = [ $renderjob->search_related('frames')->all ];
+    $c->stash->{template} = 'view_job_files.tt2';
 }
 
 sub root_redir {
@@ -118,7 +137,7 @@ sub delete_source : Local Args(0) {
     unlink $storage_filename
         or die "Couldn't delete source $filename";
 
-    $c->flash->{message} = "Source $filename successfully deleted";
+    $c->flash->{success} = "Source $filename successfully deleted";
     $c->res->redirect($c->uri_for('/'));
 }
 
@@ -142,10 +161,11 @@ sub files : Local Args(0) {
     $file->copy_to("$storage_dir/$digest");
 
     my $schema = $c->model('DB::Source');
-    $schema->create(
-        { filename => $filename, sha1 => $digest, filesize => $file->size });
+    $schema->create({ filename => $filename, sha1 => $digest,
+                      filesize => $file->size });
 
-    $c->stash->{message} = "$filename successfully uploaded";
+
+    $c->stash->{success} = "$filename successfully uploaded";
     $c->res->redirect($c->uri_for('/'));
 }
 
